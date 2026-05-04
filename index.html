@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Arrival Registration - CE Dept</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f3f4f6; }
+        .required::after { content: " *"; color: #ef4444; }
+        /* Loader Animation */
+        .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #3b82f6; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Top Blue Bar -->
+    <div class="bg-blue-900 text-white p-4 shadow-md sticky top-0 z-50">
+        <div class="max-w-3xl mx-auto flex items-center justify-center">
+            <i class="fas fa-anchor text-2xl mr-3 text-blue-300"></i>
+            <div class="text-center">
+                <h1 class="text-lg md:text-xl font-bold uppercase tracking-wider">Civil Engineer Department</h1>
+                <p class="text-xs text-blue-200">New Arrival Registration Portal</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-3xl mx-auto p-4 md:p-8 mt-2 mb-10">
+        
+        <!-- Loading Screen (While fetching Ranks/Trades from DB) -->
+        <div id="loadingScreen" class="bg-white p-10 rounded-xl shadow-lg text-center flex flex-col items-center justify-center">
+            <div class="loader mb-4 w-12 h-12 border-4"></div>
+            <h3 class="text-lg font-bold text-gray-700">පද්ධතියට සම්බන්ධ වෙමින් පවතී...</h3>
+            <p class="text-sm text-gray-500 mt-2">Connecting to secure database</p>
+        </div>
+
+        <!-- Success Screen -->
+        <div id="successScreen" class="hidden bg-white p-8 rounded-xl shadow-lg text-center border-t-4 border-green-500">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-4xl text-green-500"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">සාර්ථකයි!</h2>
+            <p class="text-gray-600 mb-6">ස්තූතියි! ඔබගේ තොරතුරු සාර්ථකව පද්ධතියට යොමු කරන ලදී.</p>
+            <button onclick="location.reload()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition">
+                Submit Another Record
+            </button>
+        </div>
+
+        <!-- Main Form -->
+        <div id="formScreen" class="hidden bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="p-6 bg-blue-50 border-b border-blue-100">
+                <h2 class="text-xl font-bold text-blue-900 mb-1">නව නාවිකයින් ලියාපදිංචිය</h2>
+                <p class="text-sm text-blue-700">කරුණාකර ඔබගේ නිවැරදි තොරතුරු ඉංග්‍රීසි කැපිටල් අකුරින් පහත පෝරමයට ඇතුළත් කරන්න.</p>
+            </div>
+
+            <div id="errorMsg" class="hidden m-6 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm text-sm font-bold">
+            </div>
+
+            <form id="registrationForm" class="p-6 space-y-6">
+                
+                <!-- 1. Official Details -->
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800 border-b pb-2 mb-4 flex items-center">
+                        <i class="fas fa-id-badge text-gray-400 mr-2"></i> 1. රාජකාරි තොරතුරු (Official Details)
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 required">සම්පූර්ණ නම (මුලකුරු සමඟ)</label>
+                            <input type="text" id="name" required placeholder="Ex: MD HAPUTHANTHRI" class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 bg-gray-50 uppercase">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 required">නිලය (Rank)</label>
+                            <select id="rank" required class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                                <option value="">-- තෝරන්න --</option>
+                                <!-- Loaded via JS -->
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 required">නිල අංකය (Official No)</label>
+                            <input type="text" id="off_no" required placeholder="Ex: VAS 75228 / EC 103756" class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 uppercase bg-gray-50">
+                            <p class="text-xs text-gray-500 mt-1">සිවිල් (AC) නම් AC යන්නෙන් අරඹන්න.</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 required">අංශය (Trade)</label>
+                            <select id="trade" required class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                                <option value="">-- තෝරන්න --</option>
+                                <option value="N/A">N/A</option>
+                                <!-- Loaded via JS -->
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">ඔබ සිවිල් සේවකයෙක් (AC) නම් N/A තෝරන්න.</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 required">රුධිර ගණය (Blood Group)</label>
+                            <select id="blood_group" required class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                                <option value="">-- තෝරන්න --</option>
+                                <option value="A+">A+</option><option value="A-">A-</option>
+                                <option value="B+">B+</option><option value="B-">B-</option>
+                                <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                                <option value="O+">O+</option><option value="O-">O-</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 required">තඨාකාංගණයට වාර්තා කළ දිනය</label>
+                            <input type="date" id="join_date" required class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 required">Navy ID කල් ඉකුත්වන දිනය</label>
+                            <input type="date" id="id_expiry" required class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Personal Details -->
+                <div class="mt-8">
+                    <h3 class="text-lg font-bold text-gray-800 border-b pb-2 mb-4 flex items-center">
+                        <i class="fas fa-home text-gray-400 mr-2"></i> 2. පෞද්ගලික තොරතුරු (Personal Details)
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 required">ජංගම දුරකථන අංකය</label>
+                            <input type="tel" id="contact_no" required placeholder="07X XXX XXXX" class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-bold text-gray-700 mb-1 required">වර්ථමාන ලිපිනය</label>
+                            <input type="text" id="address_line" required placeholder="COLOMBO, SRI LANKA" class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 required">දිස්ත්‍රික්කය (District)</label>
+                            <select id="district" required class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                                <option value="">-- තෝරන්න --</option>
+                                <option value="Ampara">Ampara</option> <option value="Anuradhapura">Anuradhapura</option>
+                                <option value="Badulla">Badulla</option> <option value="Batticaloa">Batticaloa</option>
+                                <option value="Colombo">Colombo</option> <option value="Galle">Galle</option>
+                                <option value="Gampaha">Gampaha</option> <option value="Hambantota">Hambantota</option>
+                                <option value="Jaffna">Jaffna</option> <option value="Kalutara">Kalutara</option>
+                                <option value="Kandy">Kandy</option> <option value="Kegalle">Kegalle</option>
+                                <option value="Kilinochchi">Kilinochchi</option> <option value="Kurunegala">Kurunegala</option>
+                                <option value="Mannar">Mannar</option> <option value="Matale">Matale</option>
+                                <option value="Matara">Matara</option> <option value="Monaragala">Monaragala</option>
+                                <option value="Mullaitivu">Mullaitivu</option> <option value="Nuwara Eliya">Nuwara Eliya</option>
+                                <option value="Polonnaruwa">Polonnaruwa</option> <option value="Puttalam">Puttalam</option>
+                                <option value="Ratnapura">Ratnapura</option> <option value="Trincomalee">Trincomalee</option>
+                                <option value="Vavuniya">Vavuniya</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 required">ළඟම ඇති පොලීසිය</label>
+                            <input type="text" id="police_station" required placeholder="Nearest Police Station" class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 required">භාරකරුගේ නම (NOK Name)</label>
+                            <input type="text" id="nok_name" required placeholder="Ex: SM PERERA (Wife)" class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 required">භාරකරුගේ දුරකථන අංකය</label>
+                            <input type="tel" id="nok_mobile" required placeholder="07X XXX XXXX" class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-bold text-gray-700 mb-1">විශේෂ හැකියාවන් (සිංහලෙන් ඇතුලත් කරන්න)(Special Skills)</label>
+                            <textarea id="special_skill" rows="3" placeholder="උදා: ට්‍රැක්ටර් පැදවීමේ හැකියාව, කැටයම් කැපීම,විශේෂ ක්‍රීඩා. කුසලතා" class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 bg-gray-50"></textarea>
+                            <p class="text-xs text-gray-500 mt-1">තිබේ නම් පමණක් ඇතුළත් කරන්න.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t mt-6">
+                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200 mb-6 flex items-start">
+                        <i class="fas fa-info-circle text-yellow-600 mt-1 mr-3 text-lg"></i>
+                        <p class="text-sm text-yellow-800">
+                            මා විසින් ඉහත සපයා ඇති සියලුම තොරතුරු සත්‍ය හා නිවැරදි බවට සහතික කරමි. 
+                            (I certify that all the information provided above is true and accurate.)
+                        </p>
+                    </div>
+                    <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-bold text-lg py-4 rounded-xl shadow-lg hover:bg-blue-700 transition transform hover:-translate-y-1 flex items-center justify-center">
+                        <i class="fas fa-paper-plane mr-2"></i> තොරතුරු යවන්න (Submit)
+                    </button>
+                </div>
+
+            </form>
+        </div>
+        
+        <div class="text-center mt-8 text-gray-400 text-xs font-bold uppercase tracking-wider">
+            Secure Digital Registration - CE Admin Panel
+        </div>
+    </div>
+
+    <!-- Firebase Connection & Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getDatabase, ref, push, get, child } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+        // Your Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDmHdg1FfgR_-4pKJ5z0inI8-BZ21MUtvg",
+			authDomain: "ce-admin-panel2025.firebaseapp.com",
+			databaseURL: "https://ce-admin-panel2025-default-rtdb.firebaseio.com",
+			projectId: "ce-admin-panel2025",
+			storageBucket: "ce-admin-panel2025.firebasestorage.app",
+			messagingSenderId: "1093761746400",
+			appId: "1:1093761746400:web:1984fad8019641b2ca5785"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // UI Elements
+        const loadingScreen = document.getElementById('loadingScreen');
+        const formScreen = document.getElementById('formScreen');
+        const successScreen = document.getElementById('successScreen');
+        const errorMsgBox = document.getElementById('errorMsg');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Fetch settings on load
+        const dbRef = ref(database);
+        get(child(dbRef, `personnel_settings`)).then((snapshot) => {
+            if (snapshot.exists()) {
+                const settings = snapshot.val();
+                
+                // Populate Ranks
+                if (settings.ranks) {
+                    const rankSelect = document.getElementById('rank');
+                    let ranks = Object.values(settings.ranks).sort();
+                    ranks.forEach(r => rankSelect.add(new Option(r, r)));
+                }
+
+                // Populate Trades
+                if (settings.trades) {
+                    const tradeSelect = document.getElementById('trade');
+                    let trades = Object.values(settings.trades).sort();
+                    trades.forEach(t => tradeSelect.add(new Option(t, t)));
+                }
+            }
+            // Hide loader, show form
+            loadingScreen.classList.add('hidden');
+            formScreen.classList.remove('hidden');
+        }).catch((error) => {
+            loadingScreen.innerHTML = `<i class="fas fa-wifi text-red-500 text-4xl mb-4"></i><p class="text-red-600 font-bold">Connection Error!</p><p class="text-sm">Please check your internet connection and try again.</p>`;
+        });
+
+        // AC Trade Logic
+        document.getElementById('off_no').addEventListener('input', function() {
+            const tradeSelect = document.getElementById('trade');
+            if (this.value.trim().toUpperCase().startsWith('AC')) {
+                tradeSelect.removeAttribute('required');
+                tradeSelect.value = 'N/A';
+            } else {
+                tradeSelect.setAttribute('required', 'required');
+            }
+        });
+
+        // Auto-capitalize Name Input
+        document.getElementById('name').addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+
+        // Form Submit
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // UI Loading state
+            submitBtn.innerHTML = '<div class="loader w-5 h-5 mr-2 border-2 border-white border-t-blue-600"></div> යවමින් පවතී...';
+            submitBtn.disabled = true;
+            errorMsgBox.classList.add('hidden');
+
+            // Format Data
+            const district = document.getElementById('district').value;
+            const addressLine = document.getElementById('address_line').value;
+            const nokName = document.getElementById('nok_name').value;
+            const nokMobile = document.getElementById('nok_mobile').value;
+
+            const newSailorData = {
+                name: document.getElementById('name').value.toUpperCase(),
+                rank: document.getElementById('rank').value,
+                off_no: document.getElementById('off_no').value.toUpperCase(),
+                roll: 'Regular', // Default assuming regular if not artificer
+                trade: document.getElementById('trade').value || 'N/A',
+                join_date: document.getElementById('join_date').value,
+                blood_group: document.getElementById('blood_group').value,
+                contact_no: document.getElementById('contact_no').value,
+                nok_name: nokName + (nokMobile ? ` (${nokMobile})` : ''),
+                id_expiry: document.getElementById('id_expiry').value,
+                address: addressLine + (district ? `, ${district}` : ''),
+                address_line: addressLine,
+                district: district,
+                police_station: document.getElementById('police_station').value,
+                special_skill: document.getElementById('special_skill').value,
+                status: 'Pending',
+                submitted_at: new Date().toISOString()
+            };
+
+            // Push to Database
+            push(ref(database, 'pending_registrations'), newSailorData)
+                .then(() => {
+                    formScreen.classList.add('hidden');
+                    successScreen.classList.remove('hidden');
+                    window.scrollTo(0,0);
+                })
+                .catch((error) => {
+                    errorMsgBox.textContent = "තාක්ෂණික දෝෂයක්. අන්තර්ජාල සබඳතාවය පරීක්ෂා කරන්න. (" + error.message + ")";
+                    errorMsgBox.classList.remove('hidden');
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> තොරතුරු යවන්න (Submit)';
+                    submitBtn.disabled = false;
+                    window.scrollTo(0,0);
+                });
+        });
+    </script>
+</body>
+</html>
